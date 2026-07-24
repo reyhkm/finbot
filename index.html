@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FinBot - AI Financial Analyst</title>
+  <title>FinBot - AI Financial Analyst BEI</title>
   
   <!-- Tailwind CSS & Typography Plugin -->
   <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
@@ -11,7 +11,7 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   
-  <!-- Google Fonts (Inter untuk UI, Roboto Mono untuk Angka) -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <!-- jQuery & Marked.js -->
@@ -24,8 +24,7 @@
         extend: {
           fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Roboto Mono', 'monospace'] },
           colors: {
-            finblue: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 800: '#1e40af', 900: '#1e3a8a', 950: '#172554' },
-            fingray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 800: '#1f2937' }
+            finblue: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 800: '#1e40af', 900: '#1e3a8a', 950: '#172554' }
           }
         }
       }
@@ -56,7 +55,7 @@
     .bot-row { justify-content: flex-start; }
     .bot-row .message-bubble { background-color: #f9fafb; border: 1px solid #e5e7eb; color: #1f2937; border-bottom-left-radius: 0.25rem; }
     
-    /* Markdown Styling (Tailwind Prose Override) */
+    /* Markdown Styling */
     .prose p { margin-top: 0.5em; margin-bottom: 0.5em; line-height: 1.6; }
     .prose strong { color: #1e3a8a; font-weight: 600; }
     .prose ul { margin-top: 0.5em; margin-bottom: 1em; padding-left: 1.25em; }
@@ -81,9 +80,14 @@
     .input-wrapper { display: flex; align-items: center; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 9999px; padding: 0.5rem 0.5rem 0.5rem 1.25rem; transition: all 0.2s; }
     .input-wrapper:focus-within { background: white; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
     #user-input { flex-grow: 1; background: transparent; border: none; outline: none; font-size: 0.95rem; color: #1f2937; }
-    #submit-btn { background-color: #1e3a8a; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    #submit-btn { background-color: #1e3a8a; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; }
     #submit-btn:hover:not(:disabled) { background-color: #1e40af; transform: scale(1.05); }
     #submit-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+    /* Suggestion Cards */
+    .suggestion-card { background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.75rem; }
+    .suggestion-card:hover { border-color: #3b82f6; background: #eff6ff; transform: translateX(5px); }
+    .suggestion-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; }
   </style>
 </head>
 <body>
@@ -97,7 +101,7 @@
         </div>
         <div>
           <h1 class="text-lg font-bold tracking-wide">FinBot AI</h1>
-          <p class="text-xs text-blue-200 font-medium tracking-wider uppercase">Autonomous Financial Agent</p>
+          <p class="text-xs text-blue-200 font-medium tracking-wider uppercase">Bursa Efek Indonesia (BEI)</p>
         </div>
       </div>
       <div class="flex items-center gap-2 text-xs bg-green-500/20 text-green-300 px-3 py-1 rounded-full border border-green-500/30">
@@ -113,18 +117,45 @@
     <div id="chat-output">
       <!-- Welcome Message -->
       <div class="message-row bot-row">
-        <div class="message-bubble prose prose-sm max-w-none">
-          <p>Halo! Saya <strong>FinBot</strong>, Asisten Analis Keuangan AI Anda.</p>
-          <p>Saya terhubung langsung dengan API Yahoo Finance untuk menarik data secara <em>real-time</em>. Berikut adalah beberapa hal yang bisa saya lakukan:</p>
-          <ul>
-            <li>Cek harga dan profil saham (Cth: <em>"Berapa harga GOTO.JK?"</em>)</li>
-            <li>Audit kesehatan kas & utang (Cth: <em>"Cek utang Telkom"</em>)</li>
-            <li>Analisis dividen (Cth: <em>"Apakah BBCA rajin bagi dividen?"</em>)</li>
-            <li>Cek konsensus analis (Cth: <em>"Target harga BMRI menurut pakar?"</em>)</li>
-            <li>Lacak bandar/institusi (Cth: <em>"Siapa pemilik saham Apple (AAPL)?"</em>)</li>
-            <li>Bandingkan 2 saham (Cth: <em>"Bandingkan utang BCA dan Mandiri"</em>)</li>
-          </ul>
-          <p>Silakan sebutkan kode saham yang ingin Anda analisis!</p>
+        <div class="message-bubble prose prose-sm max-w-none w-full">
+          <p class="text-lg font-semibold text-finblue-900 border-b pb-2 mb-3">Halo! Saya FinBot 🇮🇩</p>
+          <p class="text-gray-600 mb-4">Saya adalah Asisten Analis Saham AI yang terhubung langsung dengan data <em>real-time</em>. Saya siap membantu Anda mengaudit fundamental perusahaan di <strong>Bursa Efek Indonesia</strong>.</p>
+          
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Pilih menu atau ketik pertanyaan Anda:</p>
+          
+          <!-- Suggestion Cards (Clickable) -->
+          <div class="suggestion-card" onclick="fillInput('Cek utang dan kas Telkom (TLKM)')">
+            <div class="suggestion-icon bg-blue-100 text-blue-600"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <div>
+              <p class="text-sm font-semibold text-gray-800 m-0">Audit Kesehatan</p>
+              <p class="text-xs text-gray-500 m-0">"Cek utang dan kas Telkom (TLKM)"</p>
+            </div>
+          </div>
+
+          <div class="suggestion-card" onclick="fillInput('Bandingkan utang BCA dan Mandiri')">
+            <div class="suggestion-icon bg-orange-100 text-orange-600"><i class="fa-solid fa-scale-balanced"></i></div>
+            <div>
+              <p class="text-sm font-semibold text-gray-800 m-0">Komparasi Saham</p>
+              <p class="text-xs text-gray-500 m-0">"Bandingkan utang BCA dan Mandiri"</p>
+            </div>
+          </div>
+
+          <div class="suggestion-card" onclick="fillInput('Siapa institusi pemilik saham GOTO?')">
+            <div class="suggestion-icon bg-purple-100 text-purple-600"><i class="fa-solid fa-user-secret"></i></div>
+            <div>
+              <p class="text-sm font-semibold text-gray-800 m-0">Detektif Bandar</p>
+              <p class="text-xs text-gray-500 m-0">"Siapa institusi pemilik saham GOTO?"</p>
+            </div>
+          </div>
+
+          <div class="suggestion-card" onclick="fillInput('Target harga BMRI menurut pakar?')">
+            <div class="suggestion-icon bg-green-100 text-green-600"><i class="fa-solid fa-bullseye"></i></div>
+            <div>
+              <p class="text-sm font-semibold text-gray-800 m-0">Konsensus Analis</p>
+              <p class="text-xs text-gray-500 m-0">"Target harga BMRI menurut pakar?"</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -133,9 +164,9 @@
     <div id="input-area">
       <form id="message-form">
         <div class="input-wrapper">
-          <input type="text" id="user-input" placeholder="Ketik pertanyaan atau kode saham di sini..." autocomplete="off" required />
+          <input type="text" id="user-input" placeholder="Ketik pertanyaan atau pilih menu di atas..." autocomplete="off" required />
           <button type="submit" id="submit-btn">
-            <i class="fa-solid fa-arrow-up"></i>
+            <i class="fa-solid fa-paper-plane"></i>
           </button>
         </div>
       </form>
@@ -146,8 +177,13 @@
   </div>
 
   <script>
-    // Generate User ID unik untuk sesi ini
     const userId = "user_" + Math.random().toString(36).substr(2, 9);
+
+    // Fungsi untuk mengisi input dari Suggestion Card
+    function fillInput(text) {
+      $("#user-input").val(text);
+      $("#user-input").focus();
+    }
 
     $(document).ready(function() {
       const $chatOutput = $("#chat-output");
@@ -164,11 +200,9 @@
         const msg = $userInput.val().trim();
         if (!msg) return;
 
-        // Disable input while processing
         $userInput.prop('disabled', true);
         $submitBtn.prop('disabled', true);
 
-        // Tampilkan pesan user
         $chatOutput.append(`
           <div class="message-row user-row">
             <div class="message-bubble">${msg}</div>
@@ -177,7 +211,6 @@
         $userInput.val("");
         scrollToBottom();
 
-        // Tampilkan animasi loading
         const loadingId = "load_" + Date.now();
         $chatOutput.append(`
           <div class="message-row bot-row" id="${loadingId}">
@@ -188,7 +221,6 @@
         `);
         scrollToBottom();
 
-        // AJAX Call ke Python Backend
         $.ajax({
           type: "POST",
           // =================================================================
@@ -199,11 +231,7 @@
           data: JSON.stringify({ user_id: userId, message: msg }),
           success: function(res) {
             $(`#${loadingId}`).remove();
-            
-            // Parse Markdown ke HTML
             const htmlContent = marked.parse(res.response);
-            
-            // Tampilkan jawaban bot
             $chatOutput.append(`
               <div class="message-row bot-row">
                 <div class="message-bubble prose prose-sm max-w-none">${htmlContent}</div>
@@ -223,7 +251,6 @@
             scrollToBottom();
           },
           complete: function() {
-            // Re-enable input
             $userInput.prop('disabled', false).focus();
             $submitBtn.prop('disabled', false);
           }
