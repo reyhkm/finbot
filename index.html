@@ -3,28 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FinBot - AI Fundamental Analyst</title>
+  <title>FinBot - AI Financial Analyst</title>
   
   <!-- Tailwind CSS & Typography Plugin -->
-  <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   
-  <!-- Google Fonts (Inter untuk teks, Roboto Mono untuk angka/tabel) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Google Fonts (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- jQuery & Marked.js -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <script>
+    // Konfigurasi Marked.js agar enter menjadi baris baru (br)
+    marked.setOptions({ breaks: true });
+
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Roboto Mono', 'monospace'] },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
-            brand: { 50: '#f8fafc', 100: '#f1f5f9', 500: '#3b82f6', 800: '#1e293b', 900: '#0f172a' }
+            slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 700: '#334155', 800: '#1e293b', 900: '#0f172a' },
+            brand: { 500: '#2563eb', 900: '#1e3a8a' } // Deep Navy Blue
           }
         }
       }
@@ -32,127 +36,124 @@
   </script>
 
   <style>
-    body { background-color: #f8fafc; overflow: hidden; color: #1e293b; }
+    body { background-color: #f1f5f9; color: #1e293b; overflow: hidden; }
     
-    /* Layout Utama */
-    #app-wrapper { height: 100vh; display: flex; flex-direction: column; max-width: 850px; margin: 0 auto; background: #ffffff; box-shadow: 0 4px 25px rgba(0,0,0,0.04); border-left: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; }
+    /* Main App Container */
+    #app-container { display: flex; flex-direction: column; height: 100vh; max-width: 850px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 0 40px rgba(0,0,0,0.03); position: relative; }
     
-    /* Area Chat */
-    #chat-output { flex-grow: 1; overflow-y: auto; padding: 2rem 1.5rem; scroll-behavior: smooth; }
-    #chat-output::-webkit-scrollbar { width: 5px; }
+    /* Header */
+    header { flex-shrink: 0; border-bottom: 1px solid #e2e8f0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); z-index: 20; }
+    
+    /* Chat Area */
+    #chat-output { flex-grow: 1; overflow-y: auto; padding: 2rem 1.5rem; scroll-behavior: smooth; display: flex; flex-direction: column; gap: 1.5rem; }
+    
+    /* Custom Scrollbar (Elegant) */
+    #chat-output::-webkit-scrollbar { width: 6px; }
     #chat-output::-webkit-scrollbar-track { background: transparent; }
     #chat-output::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
-    
-    /* Desain Bubble Chat */
-    .message-row { display: flex; margin-bottom: 2rem; opacity: 0; animation: fadeIn 0.4s ease forwards; }
-    .avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
-    .message-content { max-width: 88%; line-height: 1.6; }
-    
-    /* User Message */
-    .user-row { justify-content: flex-end; flex-direction: row-reverse; }
-    .user-row .avatar { background-color: #f1f5f9; color: #64748b; margin-left: 1rem; }
-    .user-row .message-content { background-color: #f8fafc; padding: 0.875rem 1.25rem; border-radius: 12px; border-top-right-radius: 2px; border: 1px solid #e2e8f0; color: #334155; }
-    
-    /* Bot Message */
-    .bot-row { justify-content: flex-start; }
-    .bot-row .avatar { background-color: #0f172a; color: #ffffff; margin-right: 1rem; }
-    .bot-row .message-content { padding: 0.25rem 0; color: #1e293b; }
-    
-    /* Markdown Override untuk Template Deterministik */
-    .prose { max-width: none !important; }
-    .prose p { margin-top: 0; margin-bottom: 0.75em; }
+    #chat-output::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+
+    /* Message Layout */
+    .message-wrapper { display: flex; width: 100%; opacity: 0; animation: slideUp 0.4s ease forwards; }
+    .avatar { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.875rem; margin-top: 4px; }
+    .message-content { max-width: 80%; line-height: 1.6; font-size: 0.95rem; }
+
+    /* Bot Message (Left) */
+    .bot-msg { justify-content: flex-start; }
+    .bot-msg .avatar { background-color: #f1f5f9; color: #1e293b; margin-right: 1rem; border: 1px solid #e2e8f0; }
+    .bot-msg .message-content { color: #334155; }
+
+    /* User Message (Right) */
+    .user-msg { justify-content: flex-end; }
+    .user-msg .avatar { background-color: #1e3a8a; color: #ffffff; margin-left: 1rem; }
+    .user-msg .message-content { background-color: #1e3a8a; color: #ffffff; padding: 0.75rem 1.25rem; border-radius: 16px; border-top-right-radius: 4px; box-shadow: 0 2px 10px rgba(30, 58, 138, 0.1); }
+
+    /* Markdown Prose Styling (Financial Grade) */
+    .prose p { margin-top: 0; margin-bottom: 1em; }
+    .prose p:last-child { margin-bottom: 0; }
     .prose strong { color: #0f172a; font-weight: 600; }
-    .prose ul { margin-top: 0.5em; margin-bottom: 1em; padding-left: 1.2em; list-style-type: disc; }
+    .prose ul { margin-top: 0.5em; margin-bottom: 1em; padding-left: 1.25em; list-style-type: disc; }
     .prose li { margin-bottom: 0.3em; }
     
-    /* Tabel Komparasi yang Sangat Elegan */
-    .prose table { width: 100%; margin: 1.5em 0; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-    .prose th { background-color: #f8fafc; color: #334155; padding: 0.875rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #e2e8f0; font-size: 0.9em; }
-    .prose td { padding: 0.875rem 1rem; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-family: 'Roboto Mono', monospace; font-size: 0.9em; }
+    /* Table Styling for Financial Data */
+    .prose table { width: 100%; margin: 1.5em 0; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; font-variant-numeric: tabular-nums; /* Rahasia angka sejajar */ }
+    .prose th { background-color: #f8fafc; color: #475569; padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.9rem; }
     .prose tr:last-child td { border-bottom: none; }
-    .prose tr:nth-child(even) td { background-color: #fcfcfd; }
+    .prose tr:hover td { background-color: #f8fafc; }
     
     .prose hr { margin: 2em 0; border-color: #e2e8f0; }
-    .prose em { color: #64748b; font-style: normal; font-size: 0.85em; display: block; margin-top: 1em; }
+    .prose em { color: #64748b; font-style: italic; font-size: 0.85rem; }
 
     /* Loading Animation */
-    .typing-indicator { display: flex; align-items: center; gap: 5px; padding: 0.5rem 0; }
+    .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 0.5rem 0; }
     .typing-indicator span { width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
     .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
     .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-    
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
     /* Input Area */
-    #input-area { background: white; padding: 1rem 1.5rem 1.5rem; border-top: 1px solid #f1f5f9; }
-    .input-box { display: flex; align-items: flex-end; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s; }
-    .input-box:focus-within { border-color: #94a3b8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    #input-container { flex-shrink: 0; padding: 1rem 1.5rem 1.5rem; background: linear-gradient(to top, #ffffff 80%, rgba(255,255,255,0)); }
+    .input-box { display: flex; align-items: flex-end; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; padding: 0.5rem 0.5rem 0.5rem 1.25rem; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .input-box:focus-within { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     
-    #user-input { flex-grow: 1; background: transparent; border: none; outline: none; padding: 0.5rem 0.75rem; font-size: 0.95rem; color: #1e293b; resize: none; max-height: 120px; min-height: 24px; line-height: 1.5; }
+    #user-input { flex-grow: 1; background: transparent; border: none; outline: none; padding: 0.5rem 0; font-size: 0.95rem; color: #1e293b; resize: none; max-height: 150px; min-height: 24px; line-height: 1.5; }
     #user-input::placeholder { color: #94a3b8; }
     
-    #submit-btn { background-color: #0f172a; color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; flex-shrink: 0; margin-left: 0.5rem; }
-    #submit-btn:hover:not(:disabled) { background-color: #334155; }
-    #submit-btn:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+    #submit-btn { background-color: #1e3a8a; color: white; width: 36px; height: 36px; border-radius: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; flex-shrink: 0; margin-left: 0.75rem; }
+    #submit-btn:hover:not(:disabled) { background-color: #1e40af; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(30, 58, 138, 0.2); }
+    #submit-btn:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
 
-    /* Suggestion Chips (Tampilan Baru untuk 3 Fungsi Utama) */
-    .suggestions-container { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.25rem; }
-    .chip { display: flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1px solid #e2e8f0; color: #475569; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-    .chip:hover { background: #f8fafc; border-color: #cbd5e1; color: #0f172a; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-    .chip i { font-size: 0.9rem; }
-    .chip-blue i { color: #3b82f6; }
-    .chip-orange i { color: #f97316; }
-    .chip-green i { color: #10b981; }
+    /* Suggestion Chips */
+    .suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+    .chip { background: #ffffff; border: 1px solid #e2e8f0; color: #475569; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .chip:hover { border-color: #1e3a8a; color: #1e3a8a; background: #eff6ff; transform: translateY(-1px); }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
   </style>
 </head>
 <body>
 
-  <div id="app-wrapper">
+  <div id="app-container">
     <!-- Header -->
-    <header class="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-100 z-10">
+    <header class="px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-brand-900 text-white w-9 h-9 rounded-lg flex items-center justify-center shadow-sm">
-          <i class="fa-solid fa-chart-pie"></i>
+        <div class="bg-brand-900 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-sm">
+          <i class="fa-solid fa-chart-line"></i>
         </div>
         <div>
-          <h1 class="text-base font-bold text-gray-900 tracking-tight">FinBot AI</h1>
-          <p class="text-[11px] text-gray-500 font-medium uppercase tracking-wider">Fundamental Analyst BEI</p>
+          <h1 class="text-base font-bold text-slate-900 leading-tight">FinBot AI</h1>
+          <p class="text-[11px] text-slate-500 font-medium">Bursa Efek Indonesia (BEI)</p>
         </div>
       </div>
-      <div class="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded-md border border-gray-200">
-        <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-        System Online
+      <div class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-md border border-slate-200">
+        <div class="w-2 h-2 rounded-full bg-green-500 relative">
+          <div class="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75"></div>
+        </div>
+        System Ready
       </div>
     </header>
     
     <!-- Chat Area -->
     <div id="chat-output">
       <!-- Welcome Message -->
-      <div class="message-row bot-row">
+      <div class="message-wrapper bot-msg">
         <div class="avatar"><i class="fa-solid fa-robot"></i></div>
-        <div class="message-content prose prose-sm max-w-none w-full">
-          <p class="text-lg font-bold text-gray-900 border-b pb-2 mb-3">Halo! Saya FinBot 🇮🇩</p>
-          <p class="text-gray-600 mb-2">Saya adalah Asisten Analis Saham AI. Saya terhubung dengan API Yahoo Finance untuk mengekstrak data <strong>Analisis Fundamental</strong> (Valuasi, Profitabilitas, Likuiditas, dan Dividen) di Bursa Efek Indonesia secara <em>real-time</em>.</p>
-          <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-5 mb-2">Pilih skenario analisis di bawah ini:</p>
+        <div class="message-content prose prose-sm max-w-none">
+          <p>Halo! Saya <strong>FinBot</strong>, Asisten Analis Fundamental Saham Anda.</p>
+          <p>Saya terhubung langsung dengan API Yahoo Finance untuk mengekstrak dan menganalisis data perusahaan di Bursa Efek Indonesia secara <em>real-time</em>.</p>
           
-          <div class="suggestions-container">
-            <div class="chip chip-blue" onclick="fillInput('Tolong audit laporan fundamental komprehensif saham GOTO')">
-              <i class="fa-solid fa-file-invoice-dollar"></i> Audit Fundamental GOTO
-            </div>
-            <div class="chip chip-orange" onclick="fillInput('Bandingkan fundamental saham BBCA dan BMRI, mana yang valuasinya lebih murah?')">
-              <i class="fa-solid fa-scale-balanced"></i> Bandingkan BCA vs Mandiri
-            </div>
-            <div class="chip chip-green" onclick="fillInput('Berapa target harga saham Telkom (TLKM) menurut konsensus analis?')">
-              <i class="fa-solid fa-bullseye"></i> Konsensus Analis TLKM
-            </div>
+          <div class="suggestions">
+            <div class="chip" onclick="fillInput('Audit fundamental lengkap BBCA')">Audit Fundamental BBCA</div>
+            <div class="chip" onclick="fillInput('Bandingkan fundamental GOTO dan BUKA')">Bandingkan GOTO vs BUKA</div>
+            <div class="chip" onclick="fillInput('Target harga BMRI menurut analis?')">Konsensus Analis BMRI</div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Input Area -->
-    <div id="input-area">
+    <div id="input-container">
       <form id="message-form">
         <div class="input-box">
           <textarea id="user-input" rows="1" placeholder="Tanya seputar fundamental saham..." required></textarea>
@@ -162,7 +163,7 @@
         </div>
       </form>
       <div class="text-center mt-3">
-        <p class="text-[10px] text-gray-400 font-medium">Data ditarik dari Yahoo Finance. FinBot dapat membuat kesalahan. Verifikasi data sebelum berinvestasi.</p>
+        <p class="text-[10px] text-slate-400 font-medium">AI dapat membuat kesalahan. Verifikasi data sebelum mengambil keputusan finansial.</p>
       </div>
     </div>
   </div>
@@ -172,9 +173,10 @@
 
     // Fungsi untuk mengisi input dari Chip
     function fillInput(text) {
-      $("#user-input").val(text);
-      $("#user-input").trigger('input'); // Trigger event untuk mengaktifkan tombol
-      $("#user-input").focus();
+      const $input = $("#user-input");
+      $input.val(text);
+      $input.trigger('input'); // Trigger event untuk mengaktifkan tombol
+      $input.focus();
     }
 
     $(document).ready(function() {
@@ -215,15 +217,16 @@
         const msg = $userInput.val().trim();
         if (!msg || isProcessing) return;
 
+        // Kunci Input
         isProcessing = true;
         $userInput.prop('disabled', true);
         $submitBtn.prop('disabled', true);
 
         // Tampilkan pesan user
         $chatOutput.append(`
-          <div class="message-row user-row">
-            <div class="avatar"><i class="fa-solid fa-user"></i></div>
+          <div class="message-wrapper user-msg">
             <div class="message-content">${msg.replace(/\n/g, '<br>')}</div>
+            <div class="avatar"><i class="fa-solid fa-user"></i></div>
           </div>
         `);
         
@@ -234,7 +237,7 @@
         // Tampilkan animasi loading
         const loadingId = "load_" + Date.now();
         $chatOutput.append(`
-          <div class="message-row bot-row" id="${loadingId}">
+          <div class="message-wrapper bot-msg" id="${loadingId}">
             <div class="avatar"><i class="fa-solid fa-robot"></i></div>
             <div class="message-content">
               <div class="typing-indicator"><span></span><span></span><span></span></div>
@@ -259,9 +262,9 @@
             const htmlContent = marked.parse(res.response);
             
             $chatOutput.append(`
-              <div class="message-row bot-row">
+              <div class="message-wrapper bot-msg">
                 <div class="avatar"><i class="fa-solid fa-robot"></i></div>
-                <div class="message-content prose prose-sm">${htmlContent}</div>
+                <div class="message-content prose prose-sm max-w-none">${htmlContent}</div>
               </div>
             `);
             scrollToBottom();
@@ -269,16 +272,17 @@
           error: function() {
             $(`#${loadingId}`).remove();
             $chatOutput.append(`
-              <div class="message-row bot-row">
-                <div class="avatar bg-red-100 text-red-600"><i class="fa-solid fa-exclamation"></i></div>
-                <div class="message-content text-red-600 text-sm font-medium mt-2">
-                  Terjadi kesalahan. Server sedang sibuk atau URL API tidak valid.
+              <div class="message-wrapper bot-msg">
+                <div class="avatar" style="background-color: #fee2e2; color: #dc2626; border-color: #fca5a5;"><i class="fa-solid fa-exclamation"></i></div>
+                <div class="message-content text-red-600 text-sm font-medium">
+                  Maaf, server sedang sibuk atau URL API tidak valid. Silakan coba lagi.
                 </div>
               </div>
             `);
             scrollToBottom();
           },
           complete: function() {
+            // Buka Kunci Input
             isProcessing = false;
             $userInput.prop('disabled', false).focus();
           }
