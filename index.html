@@ -32,86 +32,92 @@
   </script>
 
   <style>
-    body { background-color: #f8fafc; overflow: hidden; color: #1e293b; }
+    /* Reset & Base */
+    body { background-color: #f1f5f9; overflow: hidden; color: #0f172a; -webkit-font-smoothing: antialiased; }
+    * { -webkit-tap-highlight-color: transparent; }
     
     /* Layout Utama */
-    #app-wrapper { height: 100vh; display: flex; flex-direction: column; max-width: 850px; margin: 0 auto; background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border-left: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; }
+    #app-wrapper { height: 100vh; height: 100dvh; display: flex; flex-direction: column; max-width: 800px; margin: 0 auto; background: #ffffff; box-shadow: 0 0 40px rgba(0,0,0,0.05); position: relative; }
+    
+    /* Header Glassmorphism */
+    header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); z-index: 20; position: absolute; top: 0; width: 100%; }
     
     /* Area Chat */
-    #chat-output { flex-grow: 1; overflow-y: auto; padding: 2rem 1.5rem; scroll-behavior: smooth; }
-    #chat-output::-webkit-scrollbar { width: 5px; }
+    #chat-output { flex-grow: 1; overflow-y: auto; padding: 5rem 1rem 6rem 1rem; scroll-behavior: smooth; }
+    #chat-output::-webkit-scrollbar { width: 4px; }
     #chat-output::-webkit-scrollbar-track { background: transparent; }
     #chat-output::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
     
     /* Desain Bubble Chat */
-    .message-row { display: flex; margin-bottom: 2rem; opacity: 0; animation: fadeIn 0.3s ease forwards; }
-    .avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
-    .message-content { max-width: 85%; line-height: 1.6; }
+    .message-row { display: flex; margin-bottom: 1.5rem; opacity: 0; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .avatar { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 4px; font-size: 0.85rem; }
+    .message-content { max-width: 88%; line-height: 1.5; font-size: 0.95rem; }
     
     /* User Message */
     .user-row { justify-content: flex-end; flex-direction: row-reverse; }
-    .user-row .avatar { background-color: #f1f5f9; color: #64748b; margin-left: 1rem; }
-    .user-row .message-content { background-color: #f8fafc; padding: 0.875rem 1.25rem; border-radius: 12px; border-top-right-radius: 2px; border: 1px solid #e2e8f0; color: #334155; }
+    .user-row .avatar { display: none; /* Sembunyikan avatar user agar lebih clean di HP */ }
+    .user-row .message-content { background: #0f172a; color: #ffffff; padding: 0.75rem 1.25rem; border-radius: 18px 18px 4px 18px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15); }
     
     /* Bot Message */
     .bot-row { justify-content: flex-start; }
-    .bot-row .avatar { background-color: #0f172a; color: #ffffff; margin-right: 1rem; }
-    .bot-row .message-content { padding: 0; color: #1e293b; width: 100%; }
+    .bot-row .avatar { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff; margin-right: 0.75rem; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3); }
+    .bot-row .message-content { width: 100%; }
     
-    /* Custom UI Components for Structured Output */
-    .ai-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02); width: 100%; }
-    .ai-intro { font-weight: 600; color: #0f172a; margin-bottom: 0.75rem; font-size: 1.05em; }
-    .ai-data { background: #f8fafc; padding: 1rem; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.9em; color: #334155; margin-bottom: 1rem; border: 1px solid #f1f5f9; line-height: 1.7; }
-    .ai-analysis { color: #475569; font-size: 0.95em; line-height: 1.6; border-left: 3px solid #3b82f6; padding-left: 1rem; margin-bottom: 1rem; background: #eff6ff; padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; }
-    .ai-disclaimer { font-size: 0.75em; color: #94a3b8; font-style: italic; border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    /* AI Card (Structured Output UI) */
+    .ai-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); width: 100%; overflow: hidden; }
+    .ai-intro { font-weight: 600; color: #0f172a; margin-bottom: 0.75rem; font-size: 1rem; }
+    .ai-data { background: #f8fafc; padding: 1rem; border-radius: 10px; font-size: 0.9em; color: #334155; margin-bottom: 1.25rem; border: 1px solid #f1f5f9; line-height: 1.6; }
+    .ai-analysis { color: #334155; font-size: 0.9em; line-height: 1.6; border-left: 4px solid #3b82f6; padding-left: 1rem; margin-bottom: 1rem; background: #eff6ff; padding: 0.875rem 1rem; border-radius: 0 10px 10px 0; }
+    .ai-disclaimer { font-size: 0.75em; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 0.75rem; display: flex; align-items: flex-start; gap: 0.5rem; line-height: 1.4; }
     
-    /* Chart Container */
-    .chart-container { width: 100%; margin-bottom: 1.5rem; padding: 1rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; }
+    /* CHART CONTAINER FIX (ANTI-GEPENG DI HP) */
+    .chart-wrapper { position: relative; width: 100%; height: 40vh; min-height: 320px; max-height: 450px; margin-bottom: 1.25rem; padding: 0.5rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; }
     
     /* Loading Animation */
-    .typing-indicator { display: flex; align-items: center; gap: 5px; padding: 0.5rem 0; }
+    .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 0.25rem 0; }
     .typing-indicator span { width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
     .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
     .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
     
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0.4); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
-    /* Input Area */
-    #input-area { background: white; padding: 1rem 1.5rem 1.5rem; border-top: 1px solid #f1f5f9; }
-    .input-box { display: flex; align-items: flex-end; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s; }
-    .input-box:focus-within { border-color: #94a3b8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    /* Input Area Glassmorphism */
+    #input-area { position: absolute; bottom: 0; width: 100%; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 0.75rem 1rem 1.25rem 1rem; border-top: 1px solid rgba(226, 232, 240, 0.8); z-index: 20; }
+    .input-box { display: flex; align-items: flex-end; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 24px; padding: 0.4rem 0.4rem 0.4rem 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.2s; }
+    .input-box:focus-within { border-color: #3b82f6; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15); }
     
-    #user-input { flex-grow: 1; background: transparent; border: none; outline: none; padding: 0.5rem 0.75rem; font-size: 0.95rem; color: #1e293b; resize: none; max-height: 120px; min-height: 24px; line-height: 1.5; }
+    #user-input { flex-grow: 1; background: transparent; border: none; outline: none; padding: 0.5rem 0; font-size: 0.95rem; color: #0f172a; resize: none; max-height: 100px; min-height: 24px; line-height: 1.4; }
     #user-input::placeholder { color: #94a3b8; }
     
-    #submit-btn { background-color: #0f172a; color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; flex-shrink: 0; margin-left: 0.5rem; }
-    #submit-btn:hover:not(:disabled) { background-color: #334155; }
+    #submit-btn { background-color: #0f172a; color: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; flex-shrink: 0; margin-left: 0.5rem; }
+    #submit-btn:hover:not(:disabled) { background-color: #3b82f6; transform: scale(1.05); }
     #submit-btn:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
 
-    /* Suggestion Chips */
-    .suggestions-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
-    .chip { background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; padding: 0.4rem 0.75rem; border-radius: 999px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
-    .chip:hover { background: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
+    /* Suggestion Chips (Scrollable on Mobile) */
+    .suggestions-wrapper { overflow-x: auto; white-space: nowrap; padding-bottom: 0.5rem; margin-top: 1rem; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .suggestions-wrapper::-webkit-scrollbar { display: none; }
+    .chip { display: inline-block; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; padding: 0.4rem 0.875rem; border-radius: 999px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; margin-right: 0.5rem; }
+    .chip:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
   </style>
 </head>
 <body>
 
   <div id="app-wrapper">
     <!-- Header -->
-    <header class="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-100 z-10">
+    <header class="px-5 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-brand-900 text-white w-8 h-8 rounded-lg flex items-center justify-center">
-          <i class="fa-solid fa-chart-line"></i>
+        <div class="bg-slate-900 text-white w-8 h-8 rounded-lg flex items-center justify-center shadow-sm">
+          <i class="fa-solid fa-chart-line text-sm"></i>
         </div>
         <div>
-          <h1 class="text-base font-semibold text-gray-900">FinBot AI</h1>
-          <p class="text-[11px] text-gray-500 font-medium">Bursa Efek Indonesia (BEI)</p>
+          <h1 class="text-sm font-bold text-slate-900 leading-tight">FinBot AI</h1>
+          <p class="text-[10px] text-slate-500 font-medium leading-tight">Bursa Efek Indonesia</p>
         </div>
       </div>
-      <div class="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-200">
-        <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-        Connected
+      <div class="flex items-center gap-1.5 text-[10px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+        Online
       </div>
     </header>
     
@@ -122,13 +128,14 @@
         <div class="avatar"><i class="fa-solid fa-robot"></i></div>
         <div class="message-content">
           <div class="ai-card">
-            <div class="ai-intro">Halo! Saya <strong>FinBot</strong>, Asisten Analis Saham AI Anda.</div>
-            <p class="text-sm text-gray-600 mb-3">Saya terhubung dengan API Yahoo Finance untuk mengekstrak data fundamental dan memvisualisasikan grafik saham di Bursa Efek Indonesia secara <em>real-time</em>.</p>
+            <div class="ai-intro">Halo! Saya FinBot 🇮🇩</div>
+            <p class="text-sm text-slate-600 mb-2">Asisten AI yang siap membantu Anda mengaudit fundamental dan memvisualisasikan grafik saham secara <em>real-time</em>.</p>
             
-            <div class="suggestions-container">
-              <div class="chip" onclick="fillInput('Audit utang dan kas Telkom (TLKM)')">Audit Utang TLKM</div>
-              <div class="chip" onclick="fillInput('Tampilkan grafik GOTO 3 bulan terakhir')">Grafik GOTO (3 Bulan)</div>
-              <div class="chip" onclick="fillInput('Bandingkan grafik BCA, Mandiri, dan BNI di tahun 2024')">Komparasi Grafik 3 Bank</div>
+            <div class="suggestions-wrapper">
+              <div class="chip" onclick="fillInput('Bandingkan grafik BCA, Mandiri, dan BNI di tahun 2024')">📈 Komparasi Grafik 3 Bank</div>
+              <div class="chip" onclick="fillInput('Audit utang dan kas Telkom (TLKM)')">💼 Audit Utang TLKM</div>
+              <div class="chip" onclick="fillInput('Siapa institusi pemilik saham GOTO?')">🕵️ Lacak Bandar GOTO</div>
+              <div class="chip" onclick="fillInput('Target harga BMRI menurut analis?')">🎯 Konsensus Analis BMRI</div>
             </div>
           </div>
         </div>
@@ -139,14 +146,14 @@
     <div id="input-area">
       <form id="message-form">
         <div class="input-box">
-          <textarea id="user-input" rows="1" placeholder="Tanya fundamental atau grafik saham..." required></textarea>
+          <textarea id="user-input" rows="1" placeholder="Tanya fundamental atau grafik..." required></textarea>
           <button type="submit" id="submit-btn" disabled>
             <i class="fa-solid fa-arrow-up"></i>
           </button>
         </div>
       </form>
-      <div class="text-center mt-3">
-        <p class="text-[10px] text-gray-400">AI dapat membuat kesalahan. Verifikasi data sebelum mengambil keputusan finansial.</p>
+      <div class="text-center mt-2">
+        <p class="text-[9px] text-slate-400">AI dapat membuat kesalahan. Verifikasi data sebelum mengambil keputusan.</p>
       </div>
     </div>
   </div>
@@ -154,28 +161,28 @@
   <script>
     const userId = "user_" + Math.random().toString(36).substr(2, 9);
 
-    // Fungsi untuk mengisi input dari Chip
     function fillInput(text) {
       $("#user-input").val(text).trigger('input').focus();
     }
 
-    // Fungsi untuk menggambar Chart.js (Mendukung Multi-Saham & Persentase)
+    // FUNGSI RENDER CHART YANG SUDAH DIPERBAIKI UNTUK MOBILE
     function renderChart(canvasId, chartData) {
       const ctx = document.getElementById(canvasId).getContext('2d');
+      const isMobile = window.innerWidth < 600;
       
-      // Palet warna dinamis untuk banyak saham
       const colorPalette = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#64748b']; 
       
       const datasets = chartData.datasets.map((ds, index) => ({
         label: ds.label,
         data: ds.data,
         borderColor: colorPalette[index % colorPalette.length],
-        backgroundColor: colorPalette[index % colorPalette.length] + '10', // Transparan
-        borderWidth: 2.5,
-        pointRadius: 0, // Hilangkan titik agar terlihat profesional
-        pointHoverRadius: 6,
-        fill: chartData.datasets.length === 1, // Hanya di-fill jika cuma 1 saham
-        tension: 0.2 // Kurva halus
+        backgroundColor: colorPalette[index % colorPalette.length] + '15',
+        borderWidth: 2,
+        pointRadius: 0, 
+        pointHoverRadius: 5,
+        pointHitRadius: 10, // Memudahkan tap di HP
+        fill: chartData.datasets.length === 1, 
+        tension: 0.3 
       }));
 
       new Chart(ctx, {
@@ -183,27 +190,34 @@
         data: { labels: chartData.labels, datasets: datasets },
         options: {
           responsive: true,
+          maintainAspectRatio: false, // KUNCI ANTI-GEPENG DI HP
           interaction: { mode: 'index', intersect: false },
           plugins: { 
-            legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } },
+            legend: { 
+              position: 'bottom', // Pindah ke bawah agar tidak menindih grafik di HP
+              labels: { boxWidth: 10, font: { size: 10, family: "'Inter', sans-serif" }, padding: 15 } 
+            },
             tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              titleFont: { family: "'Inter', sans-serif", size: 11 },
+              bodyFont: { family: "'Inter', sans-serif", size: 11 },
+              padding: 10,
+              cornerRadius: 8,
               callbacks: {
-                label: function(context) {
-                  // Tambahkan simbol % di tooltip
-                  return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
-                }
+                label: function(context) { return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%'; }
               }
             }
           },
           scales: {
-            x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } },
+            x: { 
+              grid: { display: false }, 
+              ticks: { maxTicksLimit: isMobile ? 4 : 8, font: { size: 9 } } 
+            },
             y: { 
-              grid: { color: '#f1f5f9', borderDash: [5, 5] },
+              grid: { color: '#f1f5f9', borderDash: [4, 4] },
               ticks: {
-                callback: function(value) {
-                  // Tambahkan simbol % di sumbu Y
-                  return value + '%';
-                }
+                font: { size: 9 },
+                callback: function(value) { return value + '%'; }
               }
             }
           }
@@ -222,11 +236,9 @@
         $chatOutput.animate({ scrollTop: $chatOutput[0].scrollHeight }, 300);
       }
 
-      // Auto-resize Textarea & Enable/Disable Button
       $userInput.on('input', function() {
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
-        
         if (this.value.trim() !== "" && !isProcessing) {
           $submitBtn.prop('disabled', false);
         } else {
@@ -234,13 +246,10 @@
         }
       });
 
-      // Submit on Enter (Shift+Enter for new line)
       $userInput.on('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          if (!isProcessing && this.value.trim() !== "") {
-            $form.submit();
-          }
+          if (!isProcessing && this.value.trim() !== "") $form.submit();
         }
       });
 
@@ -253,25 +262,22 @@
         $userInput.prop('disabled', true);
         $submitBtn.prop('disabled', true);
 
-        // Tampilkan pesan user
         $chatOutput.append(`
           <div class="message-row user-row">
-            <div class="avatar"><i class="fa-solid fa-user"></i></div>
+            <div class="avatar"></div>
             <div class="message-content">${msg.replace(/\n/g, '<br>')}</div>
           </div>
         `);
         
-        // Reset Textarea
         $userInput.val("").css('height', 'auto');
         scrollToBottom();
 
-        // Tampilkan animasi loading
         const loadingId = "load_" + Date.now();
         $chatOutput.append(`
           <div class="message-row bot-row" id="${loadingId}">
             <div class="avatar"><i class="fa-solid fa-robot"></i></div>
             <div class="message-content">
-              <div class="ai-card" style="padding: 0.75rem 1.25rem;">
+              <div class="ai-card" style="padding: 1rem; width: fit-content;">
                 <div class="typing-indicator"><span></span><span></span><span></span></div>
               </div>
             </div>
@@ -279,7 +285,6 @@
         `);
         scrollToBottom();
 
-        // AJAX Call ke Python Backend
         $.ajax({
           type: "POST",
           // =================================================================
@@ -295,18 +300,16 @@
                $chatOutput.append(`
                  <div class="message-row bot-row">
                    <div class="avatar bg-red-100 text-red-600"><i class="fa-solid fa-exclamation"></i></div>
-                   <div class="message-content text-red-600 text-sm">${res.error}</div>
+                   <div class="message-content text-red-600 text-sm bg-red-50 p-3 rounded-xl border border-red-100">${res.error}</div>
                  </div>
                `);
                scrollToBottom();
                return;
             }
 
-            // MENGGUNAKAN STRUCTURED OUTPUT (JSON) DARI AI
             const ai = res.ai_response;
             let canvasId = res.chart_data ? 'chart_' + Date.now() : null;
             
-            // MEMBANGUN UI BERDASARKAN JSON
             let uiHtml = `
               <div class="message-row bot-row">
                 <div class="avatar"><i class="fa-solid fa-robot"></i></div>
@@ -315,20 +318,18 @@
                     <div class="ai-intro">${ai.pesan_pengantar}</div>
             `;
 
-            // Jika ada data teks fundamental, tampilkan
             if (ai.data_utama && ai.data_utama.trim() !== "") {
               uiHtml += `<div class="ai-data">${ai.data_utama.replace(/\n/g, '<br>')}</div>`;
             }
 
-            // Jika ada data grafik dari Python, buatkan Canvas
+            // WADAH GRAFIK YANG SUDAH DIPERBAIKI
             if (canvasId) {
-              uiHtml += `<div class="chart-container"><canvas id="${canvasId}"></canvas></div>`;
+              uiHtml += `<div class="chart-wrapper"><canvas id="${canvasId}"></canvas></div>`;
             }
 
-            // Tampilkan Analisis dan Disclaimer
             uiHtml += `
                     <div class="ai-analysis">${ai.analisis_objektif}</div>
-                    <div class="ai-disclaimer"><i class="fa-solid fa-circle-info"></i> ${ai.disclaimer}</div>
+                    <div class="ai-disclaimer"><i class="fa-solid fa-circle-info text-slate-400"></i> <span>${ai.disclaimer}</span></div>
                   </div>
                 </div>
               </div>
@@ -336,11 +337,7 @@
             
             $chatOutput.append(uiHtml);
             
-            // RENDER GRAFIK SETELAH HTML DIMASUKKAN KE DOM
-            if (canvasId) {
-              renderChart(canvasId, res.chart_data);
-            }
-            
+            if (canvasId) renderChart(canvasId, res.chart_data);
             scrollToBottom();
           },
           error: function() {
@@ -348,7 +345,7 @@
             $chatOutput.append(`
               <div class="message-row bot-row">
                 <div class="avatar bg-red-100 text-red-600"><i class="fa-solid fa-exclamation"></i></div>
-                <div class="message-content text-red-600 text-sm">Maaf, server sedang sibuk atau URL API tidak valid.</div>
+                <div class="message-content text-red-600 text-sm bg-red-50 p-3 rounded-xl border border-red-100">Koneksi ke server terputus. Silakan coba lagi.</div>
               </div>
             `);
             scrollToBottom();
