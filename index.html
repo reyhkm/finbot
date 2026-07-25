@@ -282,10 +282,13 @@
             const ai = res.ai_response;
             let canvasId = res.chart_data ? 'chart_' + Date.now() : null;
             
+            // Bersihkan tanda bintang (**) dari Gemini dan ubah jadi teks biasa
+            let teksBersih = ai.pesan_teks.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\n/g, '<br>');
+            
             let uiHtml = `
               <div class="message-row bot-row">
                 <div class="message-content">
-                  <div class="ai-intro">${ai.pesan_teks.replace(/\n/g, '<br>')}</div>
+                  <div class="ai-intro">${teksBersih}</div>
             `;
 
             if (ai.tipe_respons === "grafik" && canvasId) {
