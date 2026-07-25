@@ -12,6 +12,19 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#f8fafc', 100: '#f1f5f9', 500: '#3b82f6', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
     body { background-color: #f1f5f9; overflow: hidden; color: #0f172a; -webkit-font-smoothing: antialiased; font-family: 'Inter', sans-serif; }
     * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
@@ -32,15 +45,14 @@
     .user-row .message-content { background: #0f172a; color: #ffffff; border-radius: 20px 20px 4px 20px; max-width: 85%; box-shadow: 0 2px 5px rgba(15, 23, 42, 0.1); word-wrap: break-word; }
     
     .bot-row { justify-content: flex-start; }
-    .bot-row .message-content { background: #f8fafc; color: #1e293b; border-radius: 20px 20px 20px 4px; border: 1px solid #e2e8f0; max-width: 95%; box-shadow: 0 2px 5px rgba(0,0,0,0.02); width: 100%; padding: 1.25rem; }
+    .bot-row .message-content { background: #ffffff; color: #1e293b; border-radius: 20px 20px 20px 4px; border: 1px solid #e2e8f0; max-width: 95%; box-shadow: 0 2px 8px rgba(0,0,0,0.02); width: 100%; padding: 1.25rem; }
     
-    /* AI Card (Structured Output UI) */
-    .ai-intro { font-weight: 600; color: #0f172a; margin-bottom: 1rem; font-size: 1.05rem; }
-    .ai-analysis { color: #334155; font-size: 0.9em; line-height: 1.6; border-left: 4px solid #3b82f6; padding-left: 1rem; margin-bottom: 1rem; background: #eff6ff; padding: 0.875rem 1rem; border-radius: 0 10px 10px 0; }
-    .ai-disclaimer { font-size: 0.75em; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 0.75rem; display: flex; align-items: flex-start; gap: 0.5rem; line-height: 1.4; }
+    .ai-intro { font-weight: 500; color: #0f172a; margin-bottom: 1rem; font-size: 1rem; }
     
-    /* CHART CONTAINER (FOKUS UTAMA) */
-    .chart-wrapper { position: relative; width: 100%; height: 45vh; min-height: 350px; max-height: 500px; margin-bottom: 1.25rem; padding: 0.5rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+    /* STATIC DISCLAIMER DI HTML */
+    .static-disclaimer { font-size: 0.75em; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 0.75rem; margin-top: 0.5rem; display: flex; align-items: flex-start; gap: 0.5rem; line-height: 1.4; }
+    
+    .chart-wrapper { position: relative; width: 100%; height: 45vh; min-height: 350px; max-height: 500px; margin-bottom: 0.5rem; padding: 0.5rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
     
     .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 0.25rem 0.5rem; }
     .typing-indicator span { width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
@@ -89,7 +101,7 @@
     <div id="chat-output">
       <div class="message-row bot-row">
         <div class="message-content">
-          <div class="ai-intro">Halo! Saya FinBot 🇮🇩</div>
+          <div class="ai-intro font-bold">Halo! Saya FinBot 🇮🇩</div>
           <p class="text-sm text-slate-600 mb-2">Saya adalah AI khusus Visualisasi Data. Sebutkan saham dan rentang waktu yang ingin Anda lihat, dan saya akan menggambar grafiknya secara dinamis.</p>
           
           <div class="suggestions-wrapper">
@@ -274,9 +286,12 @@
               uiHtml += `<div class="chart-wrapper"><canvas id="${canvasId}"></canvas></div>`;
             }
 
+            // STATIC HTML DISCLAIMER (Tidak lagi di-generate oleh AI)
             uiHtml += `
-                  <div class="ai-analysis">${ai.analisis_historis}</div>
-                  <div class="ai-disclaimer"><i class="fa-solid fa-circle-info text-slate-400"></i> <span>${ai.disclaimer}</span></div>
+                  <div class="static-disclaimer">
+                    <i class="fa-solid fa-circle-info text-slate-400 mt-0.5"></i> 
+                    <span>Grafik ini adalah representasi data historis dari Yahoo Finance dan bukan merupakan saran investasi atau prediksi masa depan.</span>
+                  </div>
                 </div>
               </div>
             `;
