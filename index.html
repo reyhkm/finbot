@@ -42,12 +42,10 @@
     .message-content { line-height: 1.5; font-size: 0.95rem; padding: 0.875rem 1.25rem; position: relative; }
     
     .user-row { justify-content: flex-end; }
-    .user-row .message-content { background: #0f172a; color: #ffffff; border-radius: 20px 20px 4px 20px; max-width: 85%; box-shadow: 0 2px 5px rgba(15, 23, 42, 0.1); word-wrap: break-word; }
+    .user-row .message-content { background: #0f172a; color: #ffffff; border-radius: 20px 20px 4px 20px; max-width: 85%; box-shadow: 0 2px 5px rgba(15, 23, 42, 0.1); word-wrap: break-word; font-weight: 400; }
     
     .bot-row { justify-content: flex-start; }
-    .bot-row .message-content { background: #ffffff; color: #1e293b; border-radius: 20px 20px 20px 4px; border: 1px solid #e2e8f0; max-width: 95%; box-shadow: 0 2px 8px rgba(0,0,0,0.02); width: 100%; padding: 1.25rem; }
-    
-    .ai-intro { font-weight: 600; color: #0f172a; margin-bottom: 1rem; font-size: 1.05rem; }
+    .bot-row .message-content { background: #ffffff; color: #1e293b; border-radius: 20px 20px 20px 4px; border: 1px solid #e2e8f0; max-width: 95%; box-shadow: 0 2px 8px rgba(0,0,0,0.02); width: 100%; padding: 1.25rem; font-weight: 400; }
     
     .static-disclaimer { font-size: 0.75em; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 0.75rem; margin-top: 0.5rem; display: flex; align-items: flex-start; gap: 0.5rem; line-height: 1.4; }
     
@@ -65,16 +63,14 @@
     .input-box { display: flex; align-items: flex-end; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 24px; padding: 0.4rem 0.4rem 0.4rem 1.25rem; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: all 0.2s; }
     .input-box:focus-within { border-color: #3b82f6; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1); }
     
-    /* PERBAIKAN BUG PANAH DI TEXTAREA */
     #user-input { flex-grow: 1; background: transparent; border: none; outline: none; padding: 0.5rem 0; font-size: 0.95rem; color: #0f172a; resize: none; max-height: 100px; min-height: 24px; line-height: 1.4; overflow: hidden; }
-    #user-input::-webkit-scrollbar { display: none; } /* Sembunyikan scrollbar bawaan */
+    #user-input::-webkit-scrollbar { display: none; } 
     #user-input::placeholder { color: #94a3b8; }
     
     #submit-btn { background-color: #0f172a; color: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; flex-shrink: 0; margin-left: 0.5rem; }
     #submit-btn:hover:not(:disabled) { background-color: #3b82f6; transform: scale(1.05); }
     #submit-btn:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
 
-    /* PERBAIKAN CHIP MENJADI VERTIKAL */
     .suggestions-wrapper { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
     .chip { display: flex; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; color: #475569; padding: 0.6rem 1rem; border-radius: 12px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); width: fit-content; }
     .chip:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; transform: translateX(4px); }
@@ -102,10 +98,9 @@
     <div id="chat-output">
       <div class="message-row bot-row">
         <div class="message-content">
-          <div class="ai-intro">Halo! Saya Fina</div>
+          <div class="font-semibold text-slate-900 mb-1 text-base">Halo! Saya Fina 🇮🇩</div>
           <p class="text-sm text-slate-600 mb-2">Saya adalah AI khusus Visualisasi Data. Sebutkan saham dan rentang waktu yang ingin Anda lihat, dan saya akan menggambar grafiknya secara dinamis.</p>
           
-          <!-- CHIP VERTIKAL & GANTI ANTM -->
           <div class="suggestions-wrapper">
             <div class="chip" onclick="fillInput('Tampilkan grafik ANTM 1 bulan terakhir')">📈 Grafik ANTM (1 Bulan)</div>
             <div class="chip" onclick="fillInput('Bandingkan grafik BCA, Mandiri, dan BNI di tahun 2024')">📊 Komparasi 3 Bank (2024)</div>
@@ -282,13 +277,11 @@
             const ai = res.ai_response;
             let canvasId = res.chart_data ? 'chart_' + Date.now() : null;
             
-            // Bersihkan tanda bintang (**) dari Gemini dan ubah jadi teks biasa
-            let teksBersih = ai.pesan_teks.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\n/g, '<br>');
-            
+            // PERBAIKAN: Hapus class ai-intro, gunakan div biasa dengan margin bottom jika ada grafik
             let uiHtml = `
               <div class="message-row bot-row">
                 <div class="message-content">
-                  <div class="ai-intro">${teksBersih}</div>
+                  <div class="${canvasId ? 'mb-3' : ''}">${ai.pesan_teks.replace(/\n/g, '<br>')}</div>
             `;
 
             if (ai.tipe_respons === "grafik" && canvasId) {
