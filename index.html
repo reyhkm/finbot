@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FinBot - AI Financial Analyst BEI</title>
+  <title>FinBot - AI Financial Analyst</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS & Typography -->
   <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Google Fonts (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   
   <!-- jQuery & Marked.js -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -22,12 +22,9 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { 
-            sans: ['Inter', 'sans-serif'], 
-            mono: ['JetBrains Mono', 'monospace'] 
-          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
-            brand: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e', 950: '#082f49' }
+            brand: { 50: '#f8fafc', 100: '#f1f5f9', 500: '#3b82f6', 800: '#1e293b', 900: '#0f172a' }
           }
         }
       }
@@ -35,96 +32,87 @@
   </script>
 
   <style>
-    /* Reset & Base */
-    body { background-color: #f8fafc; margin: 0; padding: 0; overflow: hidden; }
+    body { background-color: #f8fafc; overflow: hidden; color: #1e293b; }
     
-    /* Dynamic Viewport untuk Mobile Keyboard Bug Fix */
-    #app-wrapper { height: 100dvh; display: flex; flex-direction: column; margin: 0 auto; background: #ffffff; position: relative; }
-    @media (min-width: 768px) {
-      #app-wrapper { height: 95vh; max-width: 850px; margin-top: 2.5vh; border-radius: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden; border: 1px solid #e2e8f0; }
-    }
-
-    /* Header Glassmorphism */
-    header { background: rgba(8, 47, 73, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-
-    /* Chat Area */
-    #chat-output { flex-grow: 1; overflow-y: auto; padding: 1.5rem; scroll-behavior: smooth; background-image: radial-gradient(#f1f5f9 1px, transparent 1px); background-size: 20px 20px; }
-    #chat-output::-webkit-scrollbar { width: 5px; height: 5px; }
+    /* Layout Utama */
+    #app-wrapper { height: 100vh; display: flex; flex-direction: column; max-width: 850px; margin: 0 auto; background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border-left: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; }
+    
+    /* Area Chat */
+    #chat-output { flex-grow: 1; overflow-y: auto; padding: 2rem 1.5rem; scroll-behavior: smooth; }
+    #chat-output::-webkit-scrollbar { width: 5px; }
     #chat-output::-webkit-scrollbar-track { background: transparent; }
     #chat-output::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
-
-    /* Message Bubbles */
-    .message-row { display: flex; margin-bottom: 1.5rem; opacity: 0; animation: slideUp 0.4s ease forwards; width: 100%; }
-    .message-bubble { padding: 1rem 1.25rem; border-radius: 1.25rem; max-width: 88%; font-size: 0.95rem; line-height: 1.6; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     
-    .user-row { justify-content: flex-end; }
-    .user-row .message-bubble { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border-bottom-right-radius: 0.25rem; }
+    /* Desain Bubble Chat (Minimalist) */
+    .message-row { display: flex; margin-bottom: 2rem; opacity: 0; animation: fadeIn 0.3s ease forwards; }
+    .avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .message-content { max-width: 85%; line-height: 1.6; }
     
+    /* User Message */
+    .user-row { justify-content: flex-end; flex-direction: row-reverse; }
+    .user-row .avatar { background-color: #f1f5f9; color: #64748b; margin-left: 1rem; }
+    .user-row .message-content { background-color: #f8fafc; padding: 0.875rem 1.25rem; border-radius: 12px; border-top-right-radius: 2px; border: 1px solid #e2e8f0; color: #334155; }
+    
+    /* Bot Message */
     .bot-row { justify-content: flex-start; }
-    .bot-row .message-bubble { background-color: #ffffff; border: 1px solid #e2e8f0; color: #334155; border-bottom-left-radius: 0.25rem; }
-
-    /* Markdown Custom Styling (Financial Report Look) */
-    .prose p { margin-bottom: 0.75em; }
-    .prose strong { color: #0f172a; font-weight: 600; }
-    .prose ul { padding-left: 1.2em; margin-bottom: 1em; }
-    .prose li { margin-bottom: 0.25em; }
-    .prose li::marker { color: #0ea5e9; }
-    .prose hr { border-color: #e2e8f0; margin: 1.5em 0; }
-    .prose em { color: #64748b; font-size: 0.85em; font-style: normal; background: #f1f5f9; padding: 0.2em 0.5em; border-radius: 0.25em; }
+    .bot-row .avatar { background-color: #0f172a; color: #ffffff; margin-right: 1rem; }
+    .bot-row .message-content { padding: 0.25rem 0; color: #1e293b; }
     
-    /* Table Styling (Mobile Responsive) */
-    .table-wrapper { overflow-x: auto; margin: 1em 0; border-radius: 0.5rem; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .prose table { width: 100%; border-collapse: collapse; margin: 0; font-size: 0.85rem; }
-    .prose th { background-color: #f8fafc; color: #0f172a; padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
-    .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; font-family: 'JetBrains Mono', monospace; color: #334155; white-space: nowrap; }
-    .prose tr:last-child td { border-bottom: none; }
+    /* Markdown Override (Clean Look) */
+    .prose p { margin-top: 0; margin-bottom: 1em; }
+    .prose strong { color: #0f172a; font-weight: 600; }
+    .prose ul { margin-top: 0.5em; margin-bottom: 1em; padding-left: 1.25em; }
+    .prose li { margin-bottom: 0.25em; }
+    .prose table { width: 100%; margin: 1.5em 0; border-collapse: collapse; font-size: 0.9em; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .prose th { background-color: #f8fafc; color: #475569; padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid #e2e8f0; }
+    .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; color: #334155; }
+    .prose hr { margin: 2em 0; border-color: #e2e8f0; }
+    .prose em { color: #64748b; font-style: normal; font-size: 0.85em; }
 
-    /* Suggestion Chips (Horizontal Scroll on Mobile) */
-    .suggestions-container { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; margin-top: 1rem; scrollbar-width: none; }
-    .suggestions-container::-webkit-scrollbar { display: none; }
-    .chip { flex-shrink: 0; background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
-    .chip:hover { background: #e0f2fe; border-color: #7dd3fc; color: #0284c7; transform: translateY(-1px); }
-
-    /* Input Area */
-    #input-area { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 1rem; border-top: 1px solid #e2e8f0; }
-    .input-box { display: flex; align-items: center; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 1.5rem; padding: 0.4rem 0.4rem 0.4rem 1.25rem; transition: all 0.3s ease; }
-    .input-box:focus-within { background: #ffffff; border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
-    #user-input { flex-grow: 1; background: transparent; border: none; outline: none; font-size: 0.95rem; color: #0f172a; width: 100%; }
-    #user-input::placeholder { color: #94a3b8; }
-    #submit-btn { background: #0ea5e9; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; flex-shrink: 0; }
-    #submit-btn:hover:not(:disabled) { background: #0284c7; transform: scale(1.05); }
-    #submit-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
-
-    /* Animations */
-    .typing-indicator { display: flex; gap: 4px; padding: 0.2rem 0; }
+    /* Loading Animation */
+    .typing-indicator { display: flex; align-items: center; gap: 5px; padding: 0.5rem 0; }
     .typing-indicator span { width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
     .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
     .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
     
-    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+    /* Input Area */
+    #input-area { background: white; padding: 1rem 1.5rem 1.5rem; }
+    .input-box { display: flex; align-items: flex-end; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s; }
+    .input-box:focus-within { border-color: #94a3b8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    #user-input { flex-grow: 1; background: transparent; border: none; outline: none; padding: 0.5rem 0.75rem; font-size: 0.95rem; color: #1e293b; resize: none; max-height: 120px; min-height: 24px; line-height: 1.5; }
+    #user-input::placeholder { color: #94a3b8; }
+    
+    #submit-btn { background-color: #0f172a; color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; flex-shrink: 0; margin-left: 0.5rem; }
+    #submit-btn:hover:not(:disabled) { background-color: #334155; }
+    #submit-btn:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+
+    /* Suggestion Chips */
+    .suggestions-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+    .chip { background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; padding: 0.4rem 0.75rem; border-radius: 999px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+    .chip:hover { background: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
   </style>
 </head>
 <body>
 
   <div id="app-wrapper">
     <!-- Header -->
-    <header class="text-white px-5 py-4 flex items-center justify-between z-10">
+    <header class="bg-white px-6 py-4 flex items-center justify-between border-b border-gray-100 z-10">
       <div class="flex items-center gap-3">
-        <div class="bg-brand-500/20 p-2 rounded-lg text-brand-100">
-          <i class="fa-solid fa-layer-group text-xl"></i>
+        <div class="bg-brand-900 text-white w-8 h-8 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-bolt"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold tracking-wide leading-tight">FinBot AI</h1>
-          <p class="text-[11px] text-brand-100 font-medium tracking-wider uppercase opacity-80">Bursa Efek Indonesia</p>
+          <h1 class="text-base font-semibold text-gray-900">FinBot AI</h1>
+          <p class="text-[11px] text-gray-500 font-medium">Bursa Efek Indonesia (BEI)</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-full border border-emerald-500/30">
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-        </span>
-        Online
+      <div class="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-200">
+        <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+        Connected
       </div>
     </header>
     
@@ -132,32 +120,17 @@
     <div id="chat-output">
       <!-- Welcome Message -->
       <div class="message-row bot-row">
-        <div class="message-bubble prose prose-sm max-w-none w-full">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-xl">👋</span>
-            <h3 class="m-0 text-brand-900 font-bold">Halo! Saya FinBot.</h3>
-          </div>
-          <p class="text-slate-600">Saya adalah Asisten Analis Saham AI. Saya terhubung dengan API Yahoo Finance untuk mengaudit data fundamental perusahaan di <strong>BEI</strong> secara <em>real-time</em>.</p>
+        <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+        <div class="message-content prose prose-sm max-w-none w-full">
+          <p>Halo! Saya <strong>FinBot</strong>, Asisten Analis Saham AI Anda.</p>
+          <p>Saya terhubung dengan API Yahoo Finance untuk mengekstrak data fundamental perusahaan di Bursa Efek Indonesia secara <em>real-time</em>.</p>
           
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-4 mb-1">Coba tanyakan hal ini:</p>
-          
-          <!-- Suggestion Chips -->
           <div class="suggestions-container">
-            <div class="chip" onclick="fillInput('Cek utang dan kas Telkom (TLKM)')">
-              <i class="fa-solid fa-building-columns text-brand-500"></i> Audit Kas & Utang
-            </div>
-            <div class="chip" onclick="fillInput('Bandingkan utang BCA dan Mandiri')">
-              <i class="fa-solid fa-scale-balanced text-orange-500"></i> Komparasi Saham
-            </div>
-            <div class="chip" onclick="fillInput('Siapa institusi pemilik saham GOTO?')">
-              <i class="fa-solid fa-user-tie text-purple-500"></i> Lacak Bandar
-            </div>
-            <div class="chip" onclick="fillInput('Target harga BMRI menurut pakar?')">
-              <i class="fa-solid fa-bullseye text-emerald-500"></i> Konsensus Analis
-            </div>
-            <div class="chip" onclick="fillInput('Apakah BBCA rajin bagi dividen?')">
-              <i class="fa-solid fa-hand-holding-dollar text-yellow-500"></i> Cek Dividen
-            </div>
+            <div class="chip" onclick="fillInput('Cek harga dan profil GOTO')">Cek Harga GOTO</div>
+            <div class="chip" onclick="fillInput('Audit utang dan kas Telkom (TLKM)')">Audit Utang TLKM</div>
+            <div class="chip" onclick="fillInput('Bandingkan utang BCA dan Mandiri')">Bandingkan BCA vs Mandiri</div>
+            <div class="chip" onclick="fillInput('Siapa institusi pemilik saham ASII?')">Lacak Bandar ASII</div>
+            <div class="chip" onclick="fillInput('Target harga BMRI menurut analis?')">Konsensus Analis BMRI</div>
           </div>
         </div>
       </div>
@@ -167,15 +140,14 @@
     <div id="input-area">
       <form id="message-form">
         <div class="input-box">
-          <input type="text" id="user-input" placeholder="Ketik kode saham atau pertanyaan..." autocomplete="off" required />
-          <button type="submit" id="submit-btn">
-            <i class="fa-solid fa-paper-plane"></i>
+          <textarea id="user-input" rows="1" placeholder="Tanya seputar fundamental saham..." required></textarea>
+          <button type="submit" id="submit-btn" disabled>
+            <i class="fa-solid fa-arrow-up"></i>
           </button>
         </div>
       </form>
-      <div class="text-center mt-2 flex justify-center items-center gap-1">
-        <i class="fa-solid fa-shield-halved text-[9px] text-slate-400"></i>
-        <p class="text-[10px] text-slate-400 font-medium">FinBot tidak memberikan saran investasi. Verifikasi data sebelum transaksi.</p>
+      <div class="text-center mt-3">
+        <p class="text-[10px] text-gray-400">AI dapat membuat kesalahan. Verifikasi data sebelum mengambil keputusan finansial.</p>
       </div>
     </div>
   </div>
@@ -183,15 +155,11 @@
   <script>
     const userId = "user_" + Math.random().toString(36).substr(2, 9);
 
-    // Custom Markdown Renderer untuk mengatasi Bug Tabel di HP
-    const renderer = new marked.Renderer();
-    renderer.table = function(header, body) {
-      return `<div class="table-wrapper"><table class="min-w-full">\n<thead>\n${header}</thead>\n<tbody>\n${body}</tbody>\n</table></div>`;
-    };
-    marked.setOptions({ renderer: renderer, breaks: true });
-
+    // Fungsi untuk mengisi input dari Chip
     function fillInput(text) {
-      $("#user-input").val(text).focus();
+      $("#user-input").val(text);
+      $("#user-input").trigger('input'); // Trigger event untuk mengaktifkan tombol
+      $("#user-input").focus();
     }
 
     $(document).ready(function() {
@@ -199,51 +167,86 @@
       const $userInput = $("#user-input");
       const $submitBtn = $("#submit-btn");
       const $form = $("#message-form");
+      let isProcessing = false;
 
       function scrollToBottom() {
         $chatOutput.animate({ scrollTop: $chatOutput[0].scrollHeight }, 300);
       }
 
+      // Auto-resize Textarea & Enable/Disable Button
+      $userInput.on('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+        
+        if (this.value.trim() !== "" && !isProcessing) {
+          $submitBtn.prop('disabled', false);
+        } else {
+          $submitBtn.prop('disabled', true);
+        }
+      });
+
+      // Submit on Enter (Shift+Enter for new line)
+      $userInput.on('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          if (!isProcessing && this.value.trim() !== "") {
+            $form.submit();
+          }
+        }
+      });
+
       $form.submit(function(e) {
         e.preventDefault();
         const msg = $userInput.val().trim();
-        if (!msg) return;
+        if (!msg || isProcessing) return;
 
+        isProcessing = true;
         $userInput.prop('disabled', true);
-        $submitBtn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
+        $submitBtn.prop('disabled', true);
 
+        // Tampilkan pesan user
         $chatOutput.append(`
           <div class="message-row user-row">
-            <div class="message-bubble">${msg}</div>
+            <div class="avatar"><i class="fa-solid fa-user"></i></div>
+            <div class="message-content">${msg.replace(/\n/g, '<br>')}</div>
           </div>
         `);
-        $userInput.val("");
+        
+        // Reset Textarea
+        $userInput.val("").css('height', 'auto');
         scrollToBottom();
 
+        // Tampilkan animasi loading
         const loadingId = "load_" + Date.now();
         $chatOutput.append(`
           <div class="message-row bot-row" id="${loadingId}">
-            <div class="message-bubble">
+            <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+            <div class="message-content">
               <div class="typing-indicator"><span></span><span></span><span></span></div>
             </div>
           </div>
         `);
         scrollToBottom();
 
+        // AJAX Call ke Python Backend
         $.ajax({
           type: "POST",
           // =================================================================
           // UBAH URL DI BAWAH INI DENGAN URL CLOUD RUN ANDA
           // =================================================================
-          url: "https://finbot-backend-367625469919.us-central1.run.app/chat", 
+          url: "https://GANTI_DENGAN_URL_CLOUD_RUN_ANDA/chat", 
           contentType: "application/json",
           data: JSON.stringify({ user_id: userId, message: msg }),
           success: function(res) {
             $(`#${loadingId}`).remove();
+            
+            // Parse Markdown ke HTML
             const htmlContent = marked.parse(res.response);
+            
             $chatOutput.append(`
               <div class="message-row bot-row">
-                <div class="message-bubble prose prose-sm max-w-none">${htmlContent}</div>
+                <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+                <div class="message-content prose prose-sm max-w-none">${htmlContent}</div>
               </div>
             `);
             scrollToBottom();
@@ -252,16 +255,17 @@
             $(`#${loadingId}`).remove();
             $chatOutput.append(`
               <div class="message-row bot-row">
-                <div class="message-bubble text-red-500 text-sm font-medium">
-                  <i class="fa-solid fa-circle-exclamation mr-1"></i> Koneksi ke server terputus. Silakan coba lagi.
+                <div class="avatar bg-red-100 text-red-600"><i class="fa-solid fa-exclamation"></i></div>
+                <div class="message-content text-red-600 text-sm">
+                  Maaf, server sedang sibuk atau URL API tidak valid.
                 </div>
               </div>
             `);
             scrollToBottom();
           },
           complete: function() {
+            isProcessing = false;
             $userInput.prop('disabled', false).focus();
-            $submitBtn.prop('disabled', false).html('<i class="fa-solid fa-paper-plane"></i>');
           }
         });
       });
